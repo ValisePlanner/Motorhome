@@ -1,0 +1,954 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+=============================================================
+Aplicativo de gestão de roteiros e fluxo de caixa.
+=============================================================
+  Autor:       José Ricardo Verona Alves
+  Copyright:   © 2025 José Ricardo Verona Alves
+               Todos os direitos reservados.
+
+  Este software é obra intelectual original protegida pela
+  Lei nº 9.609/1998 (Lei do Software) e pela Lei nº 9.610/1998
+  (Lei de Direito Autoral) da República Federativa do Brasil,
+  bem como por tratados internacionais de propriedade intelectual.
+
+  É expressamente proibido, sem autorização prévia e por
+  escrito do autor:
+  - Copiar, reproduzir ou distribuir este software;
+  - Modificar, adaptar ou criar obras derivadas;
+  - Sublicenciar, vender ou transferir a terceiros;
+  - Utilizar para fins comerciais sem licença formal.
+
+  Bibliotecas de terceiros utilizadas:
+  - Chart.js (MIT License) — https://www.chartjs.org
+  - chartjs-plugin-datalabels (MIT License)
+  - Font Awesome 6 (Free License) — https://fontawesome.com
+
+  Data de criação: 25 de maio de 2025
+  Versão:         1.0.0.4
+  Contato:        jrverona@gmail.com
+=============================================================
+-->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="LogoMi.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Valise Motorhome</title>
+    <meta name="author" content="José Ricardo Verona Alves">
+    <meta name="copyright" content="© 2025 José Ricardo Verona Alves. Todos os direitos reservados.">
+    <meta name="description" content="Valise Motorhome — gestão de roteiros, finanças e fluxo de caixa para viagens.">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA: tema e cor de fundo para barra do sistema -->
+    <meta name="theme-color" content="#c2733c">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- iOS / Safari PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Valise">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+
+    <!-- Windows / Edge PWA -->
+    <meta name="msapplication-TileColor" content="#c2733c">
+    <meta name="msapplication-TileImage" content="icons/icon-192.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<!-- Cabeçalho visível apenas na impressão -->
+<div class="print-header" style="display:none;">
+  <img src="LogoM02.png" alt="Logo" style="height: 150px; max-height: 150px; width: auto; object-fit: contain;">
+  <div class="print-header-text">
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<div class="sticky-top">
+   <div class="sticky-top-inner" style="background: var(--card); border-radius: var(--radius); padding: 12px 15px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 20px;">
+   <header style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    
+    <div style="display:flex; align-items:center; gap:14px; flex-shrink: 0;">
+        <img src="LogoM02.png" alt="Logo" style="height: 100px; max-height: 100px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px; vertical-align: middle;">
+        <div style="display:flex; flex-direction:column; justify-content:center; line-height:1.2;">
+            <span style="font-family:serif; font-size:0.72rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-muted);"></span>
+            <span style="font-family:serif; font-size:0.72rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold, #c9973a);"></span>
+        </div>
+    </div>
+
+    <div class="nome-motorhome" style="flex-grow: 1; text-align: center; padding-right: 40px;">
+      <span id="trip-stamp-title" class="passport-stamp">Minha Viagem</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap; flex-shrink: 0;">
+        
+        <div class="lang-visual-selector" id="lang-selector-container">
+            <button class="lang-flag-btn active" onclick="changeLang('pt')" title="Português">
+                <img src="https://flagcdn.com/w40/br.png" alt="Brasil">
+            </button>
+            <button class="lang-flag-btn" onclick="changeLang('en')" title="English">
+                <img src="https://flagcdn.com/w40/us.png" alt="USA">
+            </button>
+        </div>
+        
+        <button class="btn-action" onclick="exportData()" title="Exportar dados" style="padding:8px 11px; color:#2e8b6e; border-color:#2e8b6e;" onmouseover="this.style.background='#e6f5f0'" onmouseout="this.style.background='white'"><i class="fas fa-save" style="font-size:1.1rem;"></i></button>
+        <button class="btn-action" onclick="document.getElementById('importFile').click()" title="Importar dados" style="padding:8px 11px; color:#c47a2b; border-color:#c47a2b;" onmouseover="this.style.background='#fef3e6'" onmouseout="this.style.background='white'"><i class="fas fa-folder-open" style="font-size:1.1rem;"></i></button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+        <button class="btn-action" onclick="printPage()"><i class="fas fa-print"></i><span data-i18n="btn_print">Imprimir</span></button>
+        <button class="btn-action" onclick="generateClientItinerary()" title="Roteiro do Cliente" style="color:#2e8b6e; border-color:#2e8b6e;" onmouseover="this.style.background='#e6f5f0'" onmouseout="this.style.background='white'"><i class="fas fa-route"></i><span data-i18n="btn_export_client">Roteiro do Cliente</span></button>
+        <button class="btn-action" onclick="clearAllData()" style="color:#dc2626; border-color:#dc2626;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='white'"><i class="fas fa-trash-alt"></i><span data-i18n="btn_clear_data">Limpar Dados</span></button>
+    </div>
+</header>
+
+    <div class="tabs-wrap" id="tabs-wrap">
+    <nav class="tabs" id="tabs-nav" style="display: flex; gap: 4px; margin-bottom: 0; border-bottom: 1px solid var(--border);">
+        <button id="btn-tab-timeline" class="tab-btn active" onclick="switchTab(event, 'tab-timeline')" data-i18n="tab_timeline"><i class="fas fa-stream" style="margin-right: 6px; color: var(--accent);"></i>Timeline</button>
+        <button id="btn-tab-cards" class="tab-btn" onclick="switchTab(event, 'tab-cards')" data-i18n="tab_cards"><i class="fas fa-calendar-day" style="margin-right: 6px; color: var(--accent);"></i>Card Diário</button>
+        <button id="btn-tab-checklist" class="tab-btn" onclick="switchTab(event, 'tab-checklist')" data-i18n="tab_checklist"><i class="fas fa-tasks" style="margin-right: 6px; color: var(--accent);"></i>Checklist</button>
+        <button id="btn-tab-links" class="tab-btn" onclick="switchTab(event, 'tab-links')" data-i18n="tab_links"><i class="fas fa-link" style="margin-right: 6px; color: var(--accent);"></i>Links & Endereços</button>
+        
+        <button id="btn-tab-finance" class="tab-btn" onclick="switchTab(event, 'tab-finance')" data-i18n="tab_finance"><i class="fas fa-calculator" style="margin-right: 6px; color: #2e8b6e;"></i>Financeiro</button>
+        <button id="btn-tab-cronograma" class="tab-btn" onclick="switchTab(event, 'tab-cronograma')" data-i18n="tab_cronograma"><i class="fas fa-credit-card" style="margin-right: 6px; color: #2e8b6e;"></i>Fluxo de Caixa</button>
+        
+        <button id="btn-tab-combustivel" class="tab-btn" onclick="switchTab(event, 'tab-combustivel')" data-i18n="tab_combustivel"><i class="fas fa-gas-pump" style="margin-right: 6px; color: #c47a2b;"></i>Abastecimento</button>
+        <button id="btn-tab-manutencao" class="tab-btn" onclick="switchTab(event, 'tab-manutencao')" data-i18n="tab_manutencao"><i class="fas fa-wrench" style="margin-right: 6px; color: #c47a2b;"></i>Manutenção</button>
+        
+        <button id="btn-tab-ajuda" class="tab-btn" onclick="switchTab(event, 'tab-ajuda')" data-i18n="tab_help" style="margin-left: auto;"><i class="fas fa-question-circle" style="margin-right: 6px; color: var(--text-muted);"></i>Como Usar</button>
+    </nav>
+    </div>
+</div>
+</div>
+
+    <div id="tab-timeline" class="tab-content active">
+        <div class="glass-card hide-on-print" style="background-color: var(--accent-light); border: 1px solid var(--accent); box-shadow: var(--shadow);">
+            <div class="form-grid" style="grid-template-columns: 1.8fr 1.6fr 0.8fr 0.8fr;">
+                <input type="hidden" id="edit-id" value="">
+                <!-- Linha 1: Título | Atividade | Data | Hora -->
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <div style="flex-grow: 1;">
+                        <label data-i18n="lbl_trip_title">Título da Viagem</label>
+                        <select id="trip-title" onchange="updateTripStampTitle()">
+                            <option value="Viagem">Viagem Padrão</option>
+                        </select>
+                    </div>
+                    <button class="btn-add-trip" onclick="addNewTripName()" data-i18n-title="lbl_new_trip" title="Nova Viagem"><i class="fas fa-plus"></i></button>
+                    <button class="btn-add-trip" onclick="deleteCurrentTrip()" data-i18n-title="lbl_delete_trip" title="Excluir Viagem" style="background:#fff1f1; color:#fecaca; border-color:#fecaca;"><i class="fas fa-trash"></i></button>
+                </div>
+                <div><label data-i18n="lbl_activity">Atividade</label><input type="text" id="desc"></div>
+                <div><label data-i18n="lbl_date">Data</label><input type="date" id="data"></div>
+                <div><label data-i18n="lbl_time">Hora</label><input type="time" id="hora"></div>
+                <!-- Linha 2: Cidade Base | Destino do Dia | Categoria -->
+                <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div><label data-i18n="lbl_accommodation">CIDADE BASE</label><input type="text" id="hospedagem"></div>
+                <div><label data-i18n="lbl_city">DESTINO DO DIA</label><input type="text" id="cidade"></div>
+                <div><label data-i18n="lbl_category">Categoria</label>
+                    <select id="classe">
+                        <option value="Aéreo" data-i18n="opt_cat_aereo">✈️ Aéreo</option>
+                        <option value="Aluguel de carro" data-i18n="opt_cat_aluguelcarro">🚗 Aluguel de carro</option>
+                        <option value="Camping Fee" data-i18n="opt_cat_campingfee">🏕️ Camping Fee</option>
+                        <option value="Combustível" data-i18n="opt_cat_combustivel">⛽ Combustível</option>
+                        <option value="Compras" data-i18n="opt_cat_compras">🛍️ Compras</option>
+                        <option value="Energia / Solar" data-i18n="opt_cat_energiasolar">🔆 Energia / Solar</option>
+                        <option value="GLP / Gás" data-i18n="opt_cat_glpgas">🔥 GLP / Gás</option>
+                        <option value="Hospedagem" data-i18n="opt_cat_hospedagem">🏨 Hospedagem</option>
+                        <option value="Internet/Fone" data-i18n="opt_cat_internetfone">📶 Internet/Fone</option>
+                        <option value="Lavanderia" data-i18n="opt_cat_lavanderia">🧺 Lavanderia</option>
+                        <option value="Lazer" data-i18n="opt_cat_lazer">🏛️ Lazer</option>
+                        <option value="Manutenção / Mecânica" data-i18n="opt_cat_manutencao">🔧 Manutenção / Mecânica</option>
+                        <option value="Pedágio" data-i18n="opt_cat_pedagio">🛣️ Pedágio</option>
+                        <option value="Refeição" data-i18n="opt_cat_refeicao">🍴 Refeição</option>
+                        <option value="Seguro" data-i18n="opt_cat_seguro">🛡️ Seguro</option>
+                        <option value="Transporte" data-i18n="opt_cat_transporte">🚌 Transporte</option>
+                        <option value="Água / Esgoto" data-i18n="opt_cat_aguaesgoto">💧 Água / Esgoto</option>
+                    </select>
+                </div>
+                </div>
+                <!-- Linha 3: Moeda | Valor | Cotação | Total -->
+                <div style="display: flex; gap: 10px; align-items: flex-end; grid-column: span 4; flex-wrap: wrap;">
+                    <div style="flex: 1.5; min-width: 140px;">
+                        <label data-i18n="lbl_currency">Moeda</label>
+                        <select id="moeda-estrangeira" onchange="calcConversao()">
+                            <option value="BRL">🇧🇷 BRL (Real)</option>
+                            <option value="USD">🇺🇸 USD (Dólar)</option>
+                            <option value="EUR">🇪🇺 EUR (Euro)</option>
+                            <option value="GBP">🇬🇧 GBP (Libra)</option>
+                            <option value="JPY">🇯🇵 JPY (Iene)</option>
+                            <option value="ARS">🇦🇷 ARS (Peso Arg.)</option>
+                            <option value="CLP">🇨🇱 CLP (Peso Chil.)</option>
+                            <option value="UYU">🇺🇾 UYU (Peso Uru.)</option>
+                            <option value="PYG">🇵🇾 PYG (Guarani)</option>
+                            <option value="CHF">🇨🇭 CHF (Franco Suíço)</option>
+                            <option value="CAD">🇨🇦 CAD (Dólar Can.)</option>
+                            <option value="AUD">🇦🇺 AUD (Dólar Aus.)</option>
+                            <option value="MXN">🇲🇽 MXN (Peso Mex.)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 100px;">
+                        <label data-i18n="lbl_value">Valor</label>
+                        <input type="number" id="valor" oninput="calcConversao()">
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                        <label data-i18n="lbl_rate">Cotação (1 → base)</label>
+                        <input type="number" id="cotacao-moeda" value="1" step="0.0001" min="0.0001" oninput="calcConversao()">
+                    </div>
+                    <div style="flex: 1; min-width: 120px; margin-left: 12px; padding-left: 16px; border-left: 2px solid var(--accent-light);">
+                        <label data-i18n="lbl_total_brl">💰 Total convertido</label>
+                        <input type="number" id="valor-brl-preview" readonly style="background:#f0f4e8; color:var(--accent); font-weight:700; border-color: var(--accent-light);">
+                    </div>
+                </div>
+                <!-- Linha 4: Meio Pagamento | Cartão | Parcelas | Data Pag | Salvar -->
+                <div style="display: flex; gap: 10px; align-items: flex-end; grid-column: span 4; flex-wrap: wrap;">
+                    <div style="flex: 1.5; min-width: 160px;">
+                        <label data-i18n="lbl_payment_method">💳 Meio de Pagamento</label>
+                        <select id="meio-pagamento" onchange="onMeioPagamentoChange()" style="width:100%;">
+                            <option value="credito" data-i18n="opt_payment_credit">💳 Cartão de Crédito</option>
+                            <option value="debito" data-i18n="opt_payment_debit">🏧 Cartão de Débito</option>
+                            <option value="pix" data-i18n="opt_payment_pix">⚡ Pix</option>
+                            <option value="dinheiro" data-i18n="opt_payment_cash">💵 Dinheiro</option>
+                            <option value="outro" data-i18n="opt_payment_other">📎 Outro</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1.5; min-width: 160px;" id="campo-cartao">
+                        <label data-i18n="lbl_card_name">Nome do Cartão</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <select id="nome-cartao" style="flex:1;">
+                                <option value="" data-i18n="opt_select_card">— Selecione —</option>
+                            </select>
+                            <button onclick="adicionarCartao()" data-i18n-title="lbl_add_card" title="Adicionar cartão" style="background:var(--accent-light);color:var(--accent);border:1px dashed var(--accent);border-radius:8px;padding:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:1rem;">＋</button>
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 130px;" id="campo-parcelas">
+                        <label data-i18n="lbl_payment_installments">Parcelas</label>
+                        <select id="parcelas-pagamento" style="width:100%;">
+                            <option value="1" data-i18n="opt_cash_installment">À vista (1x)</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="4">4x</option>
+                            <option value="5">5x</option>
+                            <option value="6">6x</option>
+                            <option value="7">7x</option>
+                            <option value="8">8x</option>
+                            <option value="9">9x</option>
+                            <option value="10">10x</option>
+                            <option value="12">12x</option>
+                            <option value="18">18x</option>
+                            <option value="24">24x</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;" id="campo-data-pagamento">
+                        <label data-i18n="lbl_payment_date">📅 Data de Vencimento</label>
+                        <input type="date" id="data-pagamento" title="Data em que o valor entra na fatura do cartão">
+                    </div>
+                    <div style="flex: 1; min-width: 120px; display:flex; align-items:flex-end;">
+                        <button class="btn-confirm" id="btn-save" onclick="saveEvent()" data-i18n="btn_save" style="width:100%; height:45px;">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card hide-on-print" style="margin-bottom: 15px;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr auto;">
+                <div>
+                    <label data-i18n="lbl_filter_trip">Selecionar Viagem (Filtro)</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="filter-trip-title" onchange="syncTripFilter(this.value)">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="lbl_filter_date">Data (Filtro)</label>
+                    <select id="filter-date" onchange="renderTimeline()">
+                        <option value="" data-i18n="opt_all_dates">Todas as Datas</option>
+                    </select>
+                </div>
+                <button class="btn-reset" onclick="clearFilters()" style="padding: 10px; border-radius: 8px; border: none; background: #ddd; cursor: pointer;" data-i18n="btn_clear">Limpar</button>
+            </div>
+        </div>
+
+        <div id="render-timeline" class="timeline-wrapper"></div>
+    </div>
+
+    <div id="tab-cards" class="tab-content">
+        <div class="glass-card hide-on-print" style="margin-bottom: 25px;">
+            <div class="form-grid" style="grid-template-columns: 1fr auto;">
+                <div>
+                    <label data-i18n="lbl_filter_trip">Selecionar Viagem (Filtro)</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="filter-cards-trip" onchange="syncTripFilter(this.value)">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+                <button class="btn-reset" onclick="syncTripFilter('')" style="padding: 10px; border-radius: 8px; border: none; background: #ddd; cursor: pointer;" data-i18n="btn_clear">Limpar</button>
+            </div>
+        </div>
+        <div id="render-cards" class="cards-container"></div>
+    </div>
+
+    <div id="tab-finance" class="tab-content">
+        <div class="glass-card" style="margin-bottom: 20px;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr auto; align-items: end;">
+                <div>
+                    <label data-i18n="lbl_filter_trip_short">Filtrar Viagem</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="fin-filter-trip" onchange="syncTripFilter(this.value)">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="lbl_filter_city">Filtrar Cidade</label>
+                    <select id="fin-filter-city" onchange="renderFinance()">
+                        <option value="" data-i18n="opt_all_cities">Todas as Cidades</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_filter_category">Filtrar Categoria</label>
+                    <select id="fin-filter-cat" onchange="renderFinance()">
+                        <option value="" data-i18n="opt_all_categories">Todas as Categorias</option>
+                        <option value="Aéreo" data-i18n="opt_cat_aereo">✈️ Aéreo</option>
+                        <option value="Aluguel de carro" data-i18n="opt_cat_aluguelcarro">🚗 Aluguel de carro</option>
+                        <option value="Camping Fee" data-i18n="opt_cat_campingfee">🏕️ Camping Fee</option>
+                        <option value="Combustível" data-i18n="opt_cat_combustivel">⛽ Combustível</option>
+                        <option value="Compras" data-i18n="opt_cat_compras">🛍️ Compras</option>
+                        <option value="Energia / Solar" data-i18n="opt_cat_energiasolar">🔆 Energia / Solar</option>
+                        <option value="GLP / Gás" data-i18n="opt_cat_glpgas">🔥 GLP / Gás</option>
+                        <option value="Hospedagem" data-i18n="opt_cat_hospedagem">🏨 Hospedagem</option>
+                        <option value="Internet/Fone" data-i18n="opt_cat_internetfone">📶 Internet/Fone</option>
+                        <option value="Lavanderia" data-i18n="opt_cat_lavanderia">🧺 Lavanderia</option>
+                        <option value="Lazer" data-i18n="opt_cat_lazer">🏛️ Lazer</option>
+                        <option value="Manutenção / Mecânica" data-i18n="opt_cat_manutencao">🔧 Manutenção / Mecânica</option>
+                        <option value="Pedágio" data-i18n="opt_cat_pedagio">🛣️ Pedágio</option>
+                        <option value="Refeição" data-i18n="opt_cat_refeicao">🍴 Refeição</option>
+                        <option value="Seguro" data-i18n="opt_cat_seguro">🛡️ Seguro</option>
+                        <option value="Transporte" data-i18n="opt_cat_transporte">🚌 Transporte</option>
+                        <option value="Água / Esgoto" data-i18n="opt_cat_aguaesgoto">💧 Água / Esgoto</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_show_chart">📊 Exibir Gráfico</label>
+                    <select id="fin-chart-filter" onchange="filterFinanceCharts()">
+                        <option value="all" data-i18n="opt_all_charts">Todos os Gráficos</option>
+                        <option value="daily" data-i18n="opt_chart_daily">📅 Gasto por Dia</option>
+                        <option value="category" data-i18n="opt_chart_category">🏷️ Por Categoria</option>
+                        <option value="city" data-i18n="opt_chart_city">🏙️ Por Cidade</option>
+                        <option value="payment" data-i18n="opt_chart_payment">💳 Meio de Pagamento</option>
+                        <option value="currency">💱 Por Moeda</option>
+                        <option value="budget">📊 Orçamento</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button class="btn-reset" onclick="resetFinanceFilters()" style="padding: 10px 16px; border-radius: 8px; border: none; background: #e9ecef; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap; height: 45px;" data-i18n="btn_clear">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-highlight" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; text-align:left;">
+            <div>
+                <h2 data-i18n="finance_total_label" style="margin:0; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; opacity:0.85;">Gasto Total (Filtrado)</h2>
+                <div id="finance-total-val" style="font-size:2.2rem; font-weight:800; margin-top:4px; line-height:1;">$ 0,00</div>
+            </div>
+            <div style="opacity:0.75; font-size:0.8rem; text-align:right;">
+                <i class="fas fa-chart-pie" style="font-size:2rem; opacity:0.4;"></i>
+            </div>
+        </div>
+
+        <!-- Budget Tracker -->
+        <div class="budget-tracker-card">
+            <div class="budget-tracker-header">
+                <h3 data-i18n="budget_header">📊 Evolução do Orçamento Planejado</h3>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <div id="budget-summary-pills" class="budget-summary-pills"></div>
+                    <button class="budget-edit-toggle" onclick="toggleBudgetEdit()">
+                        <i class="fas fa-sliders-h"></i> <span data-i18n="btn_set_budget">Definir Orçamento</span>
+                    </button>
+                </div>
+            </div>
+            <div class="budget-body">
+                <div class="budget-total-bar-wrap" id="budget-total-section"></div>
+                <div id="budget-bars-container"></div>
+                <div class="budget-inputs-section" id="budget-inputs-section">
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin: 0 0 10px;">
+                        <i class="fas fa-info-circle"></i> <span data-i18n="budget_info">Defina o orçamento planejado. Deixe em branco para não monitorar uma categoria.</span>
+                    </p>
+                    <div class="budget-inputs-grid" id="budget-inputs-grid"></div>
+                    <button class="btn-confirm" onclick="saveBudgets()" style="margin-top:15px; padding: 10px 24px;">
+                        <i class="fas fa-save"></i> <span data-i18n="btn_save_budgets">Salvar Orçamentos</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="finance-grid">
+            <div class="chart-container full-width-chart" id="wrap-chartDaily">
+                <div class="chart-scroll-wrapper">
+                    <div class="chart-scroll-content" id="daily-scroll-content">
+                        <canvas id="chartDaily"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 260px;" id="wrap-chartCategory"><canvas id="chartCategory"></canvas></div>
+            <div class="chart-container" style="height: 260px;" id="wrap-chartCity"><canvas id="chartCity"></canvas></div>
+            <div class="chart-container full-width-chart" style="height: 260px;" id="wrap-chartPaymentMethod"><canvas id="chartPaymentMethod"></canvas></div>
+            <div class="chart-container full-width-chart" style="height: 300px;" id="wrap-chartCurrency"><canvas id="chartCurrency"></canvas></div>
+        </div>
+    </div>
+
+    <!-- ===== ABA FLUXO DE CAIXA ===== -->
+    <div id="tab-cronograma" class="tab-content">
+        <div class="glass-card" style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h3 style="font-family: serif; font-size: 1.2rem; margin: 0 0 5px; color: var(--accent);" data-i18n="cron_title">💳 Fluxo de Caixa</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;" data-i18n="cron_desc">
+                        Os desembolsos são calculados com base no meio de pagamento, parcelas e data de pagamento definidos em cada item da Timeline.
+                    </p>
+                </div>
+                <div>
+                    <label style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;" data-i18n="lbl_filter_trip_short">Filtrar Viagem</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="cron-filter-trip" onchange="syncTripFilter(this.value)" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:#fcfcfb; font-size:0.9rem;">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totais por tipo -->
+        <div id="cron-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 25px;"></div>
+
+        <!-- Tabela mensal -->
+        <div class="glass-card" style="overflow-x: auto; padding: 0;">
+            <div id="cron-table-wrap" style="min-width: 600px; padding: 5px;"></div>
+        </div>
+
+        <!-- Gráfico de barras mensais -->
+        <div class="glass-card" style="margin-top: 25px; height: 350px; position: relative;">
+            <canvas id="chartCronograma"></canvas>
+        </div>
+    </div>
+
+    <div id="tab-checklist" class="tab-content">
+        <div class="glass-card check-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end;">
+                <div><label data-i18n="lbl_what_to_pack">O que levar/fazer?</label><input type="text" id="check-input"></div>
+                <div><label data-i18n="lbl_trip_title">Título da Viagem</label><select id="check-trip"></select></div>
+                <div><label data-i18n="check_lbl_group">Grupo</label><select id="check-cat"></select></div>
+                <div style="display:flex; gap:8px; align-items:flex-end;">
+                    <div style="flex:1;"><label data-i18n="lbl_new_cat">Nova Categoria</label><input type="text" id="check-new-cat" data-i18n-placeholder="placeholder_new_cat" placeholder="Ex: Saúde"></div>
+                    <button class="btn-confirm" onclick="addCheck()" style="height:45px; padding: 0 16px; white-space:nowrap; flex-shrink:0;"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card check-container" style="margin-bottom: 20px; padding: 15px 25px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end;">
+                <div>
+                    <label data-i18n="lbl_filter_trip_short">Filtrar Viagem</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="filter-check-trip" onchange="syncTripFilter(this.value)">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="check_lbl_filter_group">Filtrar Grupo</label>
+                    <select id="filter-check-cat" onchange="renderChecklist()">
+                        <option value="" data-i18n="opt_all_categories">Todas as Categorias</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button class="btn-reset" onclick="syncTripFilter(''); document.getElementById('filter-check-cat').value=''; renderChecklist()" style="padding: 10px 16px; border-radius: 8px; border: none; background: #e9ecef; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; white-space: nowrap; height: 45px;" data-i18n="btn_clear">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="render-checklist" class="check-container"></div>
+    </div>
+
+    <!-- ===== ABA LINKS & ENDEREÇOS ===== -->
+    <div id="tab-links" class="tab-content">
+        <div class="glass-card hide-on-print" style="background-color: var(--accent-light); border: 1px solid var(--accent);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                <div>
+                    <label data-i18n="lbl_links_name">Nome / Local</label>
+                    <input type="text" id="link-name" data-i18n-placeholder="ph_links_name" placeholder="Ex: Consulado dos EUA">
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_category">Categoria</label>
+                    <select id="link-cat">
+                        <option value="Consulado" data-i18n="opt_link_consulado">🏛️ Consulado / Embaixada</option>
+                        <option value="Museu" data-i18n="opt_link_museu">🖼️ Museu / Atração</option>
+                        <option value="Transporte" data-i18n="opt_link_transporte">🚌 Transporte</option>
+                        <option value="Saúde" data-i18n="opt_link_saude">🏥 Saúde / Hospital</option>
+                        <option value="Hotel" data-i18n="opt_link_hotel">🏨 Hotel / Hospedagem</option>
+                        <option value="Camping" data-i18n="opt_link_camping">🚐 Camping / Área RV</option>
+                        <option value="Restaurante" data-i18n="opt_link_restaurante">🍽️ Restaurante</option>
+                        <option value="Compras" data-i18n="opt_link_compras">🛍️ Compras</option>
+                        <option value="Emergência" data-i18n="opt_link_emergencia">🚨 Emergência</option>
+                        <option value="Outro" data-i18n="opt_link_outro">📌 Outro</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_trip">Viagem</label>
+                    <select id="link-trip"></select>
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <!-- Salvar button is below -->
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-top:12px; align-items:end;">
+                <div>
+                    <label data-i18n="lbl_links_address">Endereço</label>
+                    <input type="text" id="link-address" data-i18n-placeholder="ph_links_address" placeholder="Ex: 1234 Main St, New York">
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_phone">Telefone</label>
+                    <input type="text" id="link-phone" data-i18n-placeholder="ph_links_phone" placeholder="Ex: +1 (212) 000-0000">
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_url">Website / Link</label>
+                    <input type="url" id="link-url" data-i18n-placeholder="ph_links_url" placeholder="https://...">
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <label data-i18n="lbl_links_notes">Observações</label>
+                <input type="text" id="link-notes" data-i18n-placeholder="ph_links_notes" placeholder="Ex: Horário de funcionamento, documentos necessários...">
+            </div>
+            <input type="hidden" id="link-edit-id" value="">
+            <div style="margin-top:14px; display:flex; gap:8px;">
+                <button class="btn-confirm" onclick="saveLink()" style="padding:10px 22px; display:flex; align-items:center; gap:6px;"><i class="fas fa-save"></i> <span data-i18n="btn_save_link">Salvar</span></button>
+                <button onclick="clearLinkForm()" style="background:white; color:var(--text-muted); border:1px solid var(--border); padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600;" data-i18n="btn_clear">Limpar</button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="glass-card" style="padding:15px 25px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end;">
+                <div>
+                    <label data-i18n="lbl_filter_trip_short">Filtrar Viagem</label>
+                    <div class="trip-filter-wrapper">
+                        <select id="filter-link-trip" onchange="syncTripFilter(this.value)">
+                            <option value="" data-i18n="opt_all_trips">Todas as Viagens</option>
+                        </select>
+                        <span class="trip-filter-badge">✈️ <span class="trip-filter-badge-name"></span></span>
+                    </div>
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_category">Categoria</label>
+                    <select id="filter-link-cat" onchange="renderLinks()">
+                        <option value="" data-i18n="opt_all_categories">Todas as Categorias</option>
+                        <option value="Consulado">🏛️ Consulado / Embaixada</option>
+                        <option value="Museu">🖼️ Museu / Atração</option>
+                        <option value="Transporte">🚌 Transporte</option>
+                        <option value="Saúde">🏥 Saúde / Hospital</option>
+                        <option value="Hotel">🏨 Hotel / Hospedagem</option>
+                        <option value="Camping">🚐 Camping / Área RV</option>
+                        <option value="Restaurante">🍽️ Restaurante</option>
+                        <option value="Compras">🛍️ Compras</option>
+                        <option value="Emergência">🚨 Emergência</option>
+                        <option value="Outro">📌 Outro</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_links_search">Buscar</label>
+                    <input type="text" id="filter-link-search" oninput="renderLinks()" data-i18n-placeholder="ph_links_search" placeholder="Nome ou endereço...">
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button onclick="document.getElementById('filter-link-trip').value=''; document.getElementById('filter-link-cat').value=''; document.getElementById('filter-link-search').value=''; renderLinks();" style="background:#e9ecef; color:var(--text-muted); border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; height:45px;" data-i18n="btn_clear">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listagem -->
+        <div id="render-links"></div>
+    </div>
+
+    <!-- ===== ABA ABASTECIMENTO ===== -->
+    <div id="tab-combustivel" class="tab-content">
+
+        <!-- Formulário -->
+        <div class="glass-card hide-on-print" style="background-color: var(--accent-light); border: 1px solid var(--accent); box-shadow: var(--shadow);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px;">
+                <input type="hidden" id="fuel-edit-id" value="">
+                <div><label data-i18n="lbl_fuel_date">Data</label><input type="date" id="fuel-data"></div>
+                <div><label data-i18n="lbl_fuel_trip">Viagem</label><select id="fuel-trip"></select></div>
+                <div><label data-i18n="lbl_fuel_city">Cidade / Local</label><input type="text" id="fuel-cidade" placeholder="Ex: Bonito, MS"></div>
+                <div><label data-i18n="lbl_fuel_posto">Posto</label><input type="text" id="fuel-posto" placeholder="Ex: Posto Shell"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 14px; margin-top: 14px;">
+                <div><label data-i18n="lbl_fuel_km">Hodômetro (km)</label><input type="number" id="fuel-km" placeholder="Ex: 45230" min="0" step="1"></div>
+                <div><label data-i18n="lbl_fuel_litros">Litros</label><input type="number" id="fuel-litros" placeholder="Ex: 80" min="0" step="0.01" oninput="calcFuelTotal()"></div>
+                <div><label data-i18n="lbl_fuel_preco">Preço / Litro (R$)</label><input type="number" id="fuel-preco" placeholder="Ex: 5.89" min="0" step="0.001" oninput="calcFuelTotal()"></div>
+                <div><label data-i18n="lbl_fuel_total">Total (R$)</label><input type="number" id="fuel-total" placeholder="Calculado" min="0" step="0.01"></div>
+                <div><label data-i18n="lbl_fuel_tipo">Combustível</label>
+                    <select id="fuel-tipo">
+                        <option value="Diesel S10">⛽ Diesel S10</option>
+                        <option value="Diesel Comum">⛽ Diesel Comum</option>
+                        <option value="Gasolina">⛽ Gasolina</option>
+                        <option value="Gasolina Aditivada">⛽ Gasolina Aditivada</option>
+                        <option value="Etanol">⛽ Etanol</option>
+                        <option value="GNV">⛽ GNV</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 14px;"><label data-i18n="lbl_fuel_obs">Observações</label><input type="text" id="fuel-obs" placeholder="Ex: Tanque cheio, primeira parada da viagem..."></div>
+            <!-- Pagamento -->
+            <div style="display: flex; gap: 10px; align-items: flex-end; margin-top: 14px; flex-wrap: wrap;">
+                <div style="flex: 1.5; min-width: 160px;">
+                    <label data-i18n="lbl_payment_method">💳 Meio de Pagamento</label>
+                    <select id="fuel-meio-pagamento" onchange="onFuelMeioPagamentoChange()" style="width:100%;">
+                        <option value="credito" data-i18n="opt_payment_credit">💳 Cartão de Crédito</option>
+                        <option value="debito" data-i18n="opt_payment_debit">🏧 Cartão de Débito</option>
+                        <option value="pix" data-i18n="opt_payment_pix">⚡ Pix</option>
+                        <option value="dinheiro" data-i18n="opt_payment_cash">💵 Dinheiro</option>
+                        <option value="outro" data-i18n="opt_payment_other">📎 Outro</option>
+                    </select>
+                </div>
+                <div style="flex: 1.5; min-width: 160px;" id="fuel-campo-cartao">
+                    <label data-i18n="lbl_card_name">Nome do Cartão</label>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <select id="fuel-nome-cartao" style="flex:1;">
+                            <option value="" data-i18n="opt_select_card">— Selecione —</option>
+                        </select>
+                        <button onclick="adicionarCartao()" data-i18n-title="lbl_add_card" title="Adicionar cartão" style="background:var(--accent-light);color:var(--accent);border:1px dashed var(--accent);border-radius:8px;padding:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:1rem;">＋</button>
+                    </div>
+                </div>
+                <div style="flex: 1; min-width: 130px;" id="fuel-campo-parcelas">
+                    <label data-i18n="lbl_payment_installments">Parcelas</label>
+                    <select id="fuel-parcelas" style="width:100%;">
+                        <option value="1" data-i18n="opt_cash_installment">À vista (1x)</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                        <option value="4">4x</option>
+                        <option value="5">5x</option>
+                        <option value="6">6x</option>
+                        <option value="7">7x</option>
+                        <option value="8">8x</option>
+                        <option value="9">9x</option>
+                        <option value="10">10x</option>
+                        <option value="12">12x</option>
+                        <option value="18">18x</option>
+                        <option value="24">24x</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 150px;" id="fuel-campo-data-pagamento">
+                    <label data-i18n="lbl_payment_date">📅 Data de Vencimento</label>
+                    <input type="date" id="fuel-data-pagamento" title="Data em que o valor entra na fatura do cartão">
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+                <button class="btn-confirm" onclick="saveFuel()" style="padding: 10px 22px; display:flex; align-items:center; gap:6px;"><i class="fas fa-save"></i> <span data-i18n="btn_save">Salvar</span></button>
+                <button onclick="clearFuelForm()" style="background:white; color:var(--text-muted); border:1px solid var(--border); padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600;" data-i18n="btn_clear">Limpar</button>
+            </div>
+        </div>
+
+        <!-- Métricas resumo -->
+        <div id="fuel-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 6px;"></div>
+
+        <!-- Gráfico de consumo por trecho -->
+        <div class="glass-card" style="padding: 20px 25px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div style="font-weight:700; font-size:1rem; color:var(--text); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-chart-line" style="color:var(--accent);"></i> Consumo por Trecho (km/L)
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select id="fuel-chart-trip" onchange="renderFuelChart()" style="font-size:0.82rem; padding:5px 10px; border:1px solid var(--border); border-radius:7px; background:white; color:var(--text);">
+                        <option value="">Todas as viagens</option>
+                    </select>
+                    <select id="fuel-chart-mode" onchange="renderFuelChart()" style="font-size:0.82rem; padding:5px 10px; border:1px solid var(--border); border-radius:7px; background:white; color:var(--text);">
+                        <option value="trecho">Por abastecimento</option>
+                        <option value="cidade">Por cidade</option>
+                    </select>
+                </div>
+            </div>
+            <div id="fuel-chart-empty" style="display:none; text-align:center; color:var(--text-muted); padding:30px; font-size:0.9rem;">
+                <i class="fas fa-chart-line" style="font-size:2rem; margin-bottom:10px; opacity:0.3; display:block;"></i>
+                Registre ao menos 2 abastecimentos com hodômetro para ver o gráfico de consumo por trecho.
+            </div>
+            <div style="position:relative; height:260px;">
+                <canvas id="fuel-chart-canvas"></canvas>
+            </div>
+            <!-- Tabela detalhada por trecho -->
+            <div id="fuel-trecho-table" style="margin-top:18px; overflow-x:auto;"></div>
+        </div>
+
+        <!-- Filtros lista -->
+        <div class="glass-card" style="padding: 15px 25px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                <div><label>Filtrar Viagem</label>
+                    <select id="filter-fuel-trip" onchange="renderFuel()">
+                        <option value="">Todas as Viagens</option>
+                    </select>
+                </div>
+                <div><label>Combustível</label>
+                    <select id="filter-fuel-tipo" onchange="renderFuel()">
+                        <option value="">Todos</option>
+                        <option value="Diesel S10">⛽ Diesel S10</option>
+                        <option value="Diesel Comum">⛽ Diesel Comum</option>
+                        <option value="Gasolina">⛽ Gasolina</option>
+                        <option value="Etanol">⛽ Etanol</option>
+                        <option value="GNV">⛽ GNV</option>
+                    </select>
+                </div>
+                <div><label>Buscar</label><input type="text" id="filter-fuel-search" oninput="renderFuel()" placeholder="Cidade ou posto..."></div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button onclick="document.getElementById('filter-fuel-trip').value='';document.getElementById('filter-fuel-tipo').value='';document.getElementById('filter-fuel-search').value='';renderFuel();"
+                        style="background:#e9ecef; color:var(--text-muted); border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; height:45px;">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de abastecimentos -->
+        <div id="render-fuel"></div>
+    </div>
+
+    <!-- ===== ABA MANUTENÇÃO ===== -->
+    <div id="tab-manutencao" class="tab-content">
+
+        <!-- Formulário -->
+        <div class="glass-card hide-on-print" style="background-color: var(--accent-light); border: 1px solid var(--accent); box-shadow: var(--shadow);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 2fr 1fr 1fr; gap: 14px;">
+                <input type="hidden" id="man-edit-id" value="">
+                <div>
+                    <label data-i18n="lbl_man_date">Data</label>
+                    <input type="date" id="man-data">
+                </div>
+                <div>
+                    <label>Viagem</label>
+                    <select id="man-trip"><option value="">— Sem viagem —</option></select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_type">Tipo de Serviço</label>
+                    <select id="man-tipo">
+                        <option value="Troca de óleo">🛢️ Troca de óleo</option>
+                        <option value="Filtro de ar">💨 Filtro de ar</option>
+                        <option value="Filtro de combustível">⛽ Filtro de combustível</option>
+                        <option value="Filtro de cabine">🌬️ Filtro de cabine</option>
+                        <option value="Pneus">🔄 Pneus</option>
+                        <option value="Alinhamento e balanceamento">⚖️ Alinhamento e balanceamento</option>
+                        <option value="Freios">🛑 Freios</option>
+                        <option value="Bateria">🔋 Bateria</option>
+                        <option value="Correia dentada">⚙️ Correia dentada</option>
+                        <option value="Velas / Injeção">🔌 Velas / Injeção</option>
+                        <option value="Amortecedores">🔩 Amortecedores</option>
+                        <option value="Fluido de arrefecimento">🌡️ Fluido de arrefecimento</option>
+                        <option value="Fluido de transmissão">⚙️ Fluido de transmissão</option>
+                        <option value="Revisão geral">🔧 Revisão geral</option>
+                        <option value="Elétrica">⚡ Elétrica</option>
+                        <option value="Carroceria / Funilaria">🚐 Carroceria / Funilaria</option>
+                        <option value="Outro">📋 Outro</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_km">Hodômetro (km)</label>
+                    <input type="number" id="man-km" placeholder="Ex: 45230" min="0" step="1">
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_cost">Custo (R$)</label>
+                    <input type="number" id="man-custo" placeholder="Ex: 350.00" min="0" step="0.01">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; margin-top: 14px;">
+                <div>
+                    <label data-i18n="lbl_man_local">Oficina / Local</label>
+                    <input type="text" id="man-local" placeholder="Ex: Oficina do João">
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_next_km">Próxima troca (km)</label>
+                    <input type="number" id="man-prox-km" placeholder="Ex: 50230" min="0" step="1">
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_next_date">Próxima troca (data)</label>
+                    <input type="date" id="man-prox-data">
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_status">Status</label>
+                    <select id="man-status">
+                        <option value="Realizado">✅ Realizado</option>
+                        <option value="Agendado">📅 Agendado</option>
+                        <option value="Pendente">⚠️ Pendente</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 14px;">
+                <label data-i18n="lbl_man_obs">Observações</label>
+                <input type="text" id="man-obs" placeholder="Ex: Usado óleo 5W30 sintético, próxima revisão aos 50.000 km...">
+            </div>
+            <!-- Pagamento -->
+            <div style="display: flex; gap: 10px; align-items: flex-end; margin-top: 14px; flex-wrap: wrap;">
+                <div style="flex: 1.5; min-width: 160px;">
+                    <label data-i18n="lbl_payment_method">💳 Meio de Pagamento</label>
+                    <select id="man-meio-pagamento" onchange="onManMeioPagamentoChange()" style="width:100%;">
+                        <option value="credito" data-i18n="opt_payment_credit">💳 Cartão de Crédito</option>
+                        <option value="debito" data-i18n="opt_payment_debit">🏧 Cartão de Débito</option>
+                        <option value="pix" data-i18n="opt_payment_pix">⚡ Pix</option>
+                        <option value="dinheiro" data-i18n="opt_payment_cash">💵 Dinheiro</option>
+                        <option value="outro" data-i18n="opt_payment_other">📎 Outro</option>
+                    </select>
+                </div>
+                <div style="flex: 1.5; min-width: 160px;" id="man-campo-cartao">
+                    <label data-i18n="lbl_card_name">Nome do Cartão</label>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <select id="man-nome-cartao" style="flex:1;">
+                            <option value="" data-i18n="opt_select_card">— Selecione —</option>
+                        </select>
+                        <button onclick="adicionarCartao()" data-i18n-title="lbl_add_card" title="Adicionar cartão" style="background:var(--accent-light);color:var(--accent);border:1px dashed var(--accent);border-radius:8px;padding:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:1rem;">＋</button>
+                    </div>
+                </div>
+                <div style="flex: 1; min-width: 130px;" id="man-campo-parcelas">
+                    <label data-i18n="lbl_payment_installments">Parcelas</label>
+                    <select id="man-parcelas" style="width:100%;">
+                        <option value="1" data-i18n="opt_cash_installment">À vista (1x)</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                        <option value="4">4x</option>
+                        <option value="5">5x</option>
+                        <option value="6">6x</option>
+                        <option value="7">7x</option>
+                        <option value="8">8x</option>
+                        <option value="9">9x</option>
+                        <option value="10">10x</option>
+                        <option value="12">12x</option>
+                        <option value="18">18x</option>
+                        <option value="24">24x</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 150px;" id="man-campo-data-pagamento">
+                    <label data-i18n="lbl_payment_date">📅 Data de Vencimento</label>
+                    <input type="date" id="man-data-pagamento" title="Data em que o valor entra na fatura do cartão">
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 14px; align-items: center;">
+                <button class="btn-confirm" onclick="saveMan()" style="padding: 10px 22px; display:flex; align-items:center; gap:6px;"><i class="fas fa-save"></i> <span data-i18n="btn_save">Salvar</span></button>
+                <button onclick="clearManForm()" style="background:white; color:var(--text-muted); border:1px solid var(--border); padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600;" data-i18n="btn_clear">Limpar</button>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div id="man-alerts"></div>
+
+        <!-- Estatísticas -->
+        <div id="man-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 6px;"></div>
+
+        <!-- Filtros -->
+        <div class="glass-card" style="padding: 15px 25px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                <div>
+                    <label data-i18n="lbl_man_type">Tipo de Serviço</label>
+                    <select id="filter-man-tipo" onchange="renderMan()">
+                        <option value="">Todos</option>
+                        <option value="Troca de óleo">🛢️ Troca de óleo</option>
+                        <option value="Filtro de ar">💨 Filtro de ar</option>
+                        <option value="Filtro de combustível">⛽ Filtro de combustível</option>
+                        <option value="Pneus">🔄 Pneus</option>
+                        <option value="Freios">🛑 Freios</option>
+                        <option value="Bateria">🔋 Bateria</option>
+                        <option value="Revisão geral">🔧 Revisão geral</option>
+                        <option value="Outro">📋 Outro</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_man_status">Status</label>
+                    <select id="filter-man-status" onchange="renderMan()">
+                        <option value="">Todos</option>
+                        <option value="Realizado">✅ Realizado</option>
+                        <option value="Agendado">📅 Agendado</option>
+                        <option value="Pendente">⚠️ Pendente</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Buscar</label>
+                    <input type="text" id="filter-man-search" oninput="renderMan()" placeholder="Serviço ou oficina...">
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button onclick="document.getElementById('filter-man-tipo').value=''; document.getElementById('filter-man-status').value=''; document.getElementById('filter-man-search').value=''; renderMan();"
+                        style="background:#e9ecef; color:var(--text-muted); border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; height:45px;">Limpar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de manutenções -->
+        <div id="render-man"></div>
+    </div>
+
+    <!-- ===== ABA COMO USAR ===== -->
+    <div id="tab-ajuda" class="tab-content">
+        <div id="ajuda-content" style="max-width: 820px; margin: 0 auto;"></div>
+    </div>
+
+</div>
+
+
+
+<!-- Modal: Política de Privacidade -->
+<div id="modal-privacidade" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div id="modal-privacidade-content" style="background:white; border-radius:16px; max-width:780px; width:100%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;"></div>
+</div>
+
+<script src="script.js"></script>
+
+<!-- PWA: Registro do Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          /* Verifica atualizações silenciosamente a cada 60 min */
+          setInterval(() => reg.update(), 60 * 60 * 1000);
+
+          /* Notifica o usuário quando uma nova versão estiver pronta */
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                const msg = document.documentElement.lang === 'pt-br'
+                  ? 'Nova versão disponível! Recarregue para atualizar.'
+                  : 'New version available! Reload to update.';
+                if (confirm(msg)) {
+                  newWorker.postMessage('SKIP_WAITING');
+                  window.location.reload();
+                }
+              }
+            });
+          });
+        })
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+</script>
+</body>
+</html>

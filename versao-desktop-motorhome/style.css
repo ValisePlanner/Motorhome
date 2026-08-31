@@ -1,0 +1,399 @@
+:root {
+            --bg: #faf6f0;
+            --card: #ffffff;
+            --accent: #c2733c; 
+            --accent-light: #f6e9dd;
+            --text: #3a352f;
+            --text-muted: #8a7f74;
+            --border: #ece3d8;
+            --radius: 12px;
+            --shadow: 0 8px 30px rgba(0,0,0,0.04);
+            --color-transporte: #7fa9c4; 
+            --color-refeicao: #e8a87c;   
+            --color-aereo: #88d8b0;      
+            --color-hospedagem: #c38d9e; 
+            --color-lazer: #95b8d1;      
+            --color-compras: #d4a5a5;
+        }
+        body { font-family: 'Inter', sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    margin: 0; 
+    padding: 20px; 
+    padding-top: 0;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+        .container { max-width: 1340px; 
+    margin: auto; }
+        .sticky-top { position: sticky;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    z-index: 100; 
+    background: var(--bg); 
+    padding: 10px 0;
+    padding-top: max(10px, env(safe-area-inset-top)); }
+        .sticky-top-inner { max-width: 1340px; margin: auto; }
+
+        .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 0; overflow-x: auto; scrollbar-width: thin; position: relative; }
+        .tabs::-webkit-scrollbar { height: 4px; }
+        .tabs::-webkit-scrollbar-track { background: transparent; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .tab-content { padding-top: 40px; }
+        .tab-btn { padding: 12px 10px; border: none; background: none; cursor: pointer; font-size: 0.95rem; color: var(--text-muted); position: relative; white-space: nowrap; flex-shrink: 0; }
+        .tab-btn.active { color: var(--accent); font-weight: 600; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: var(--accent); }
+
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content.active { display: block !important; opacity: 1; }
+
+        .glass-card { background: var(--card); padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 30px; border: 1px solid var(--border); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; align-items: end; }
+        .span-2 { grid-column: span 2; }
+        label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #fcfcfb; outline: none; box-sizing: border-box; }
+        .btn-confirm { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .timeline-wrapper { position: relative; padding-left: 50px; margin: 40px 0; }
+        .timeline-wrapper::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 3px; background: var(--border); border-radius: 3px; }
+        
+        .day-header { font-family: serif; font-weight: 600; font-size: 1.3rem; color: var(--accent); background: var(--bg); padding: 8px 20px 8px 16px; display: inline-flex; align-items: center; gap: 10px; margin: 25px 0 20px -50px; position: relative; z-index: 2; border: 2px solid var(--accent-light); border-left: 4px solid var(--accent); border-radius: 30px; box-shadow: 0 2px 8px rgba(107,142,35,0.10); }
+        
+        .item-card { background: white; padding: 15px 20px; border-radius: 16px; display: flex; align-items: center; gap: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); position: relative; transition: all 0.2s ease; }
+        @media (hover: hover) { .item-card:hover { transform: translateX(5px); border-color: var(--accent); } }
+        .item-card::before { content: ''; position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 4px solid var(--bg); z-index: 2; }
+        .item-time { font-weight: 700; color: var(--text); min-width: 50px; font-size: 0.9rem; }
+        .icon-box-timeline { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
+        .item-details { flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .item-details b { font-size: 1rem; color: var(--text); word-break: break-word; overflow-wrap: break-word; }
+        .item-details small { color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 5px; word-break: break-word; overflow-wrap: break-word; flex-wrap: wrap; }
+        .item-price { font-weight: 700; color: var(--accent); font-size: 1rem; padding: 5px 12px; background: var(--accent-light); border-radius: 8px; min-width: 80px; text-align: right; }
+
+        .timeline-actions { display: flex; gap: 8px; margin-left: 10px; }
+        .btn-edit-item, .btn-delete-item { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .btn-edit-item { background: #f3f4f6; color: #9ca3af; }
+        .btn-edit-item:hover { background: var(--accent-light); color: var(--accent); }
+        .btn-delete-item { background: #fff1f1; color: #fecaca; }
+        .btn-delete-item:hover { background: #fee2e2; color: #ef4444; }
+
+        .btn-add-trip { background: var(--accent-light); color: var(--accent); border: 1px dashed var(--accent); border-radius: 8px; cursor: pointer; padding: 10px; height: 45px; width: 45px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-add-trip:hover { background: var(--accent); color: white; }
+
+        .cards-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .daily-card { background: white; border-radius: 15px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+        @media (hover: hover) { .daily-card:hover { transform: scale(1.02); } }
+        .daily-card h3 { margin: 0 0 10px 0; font-family: serif; color: var(--accent); border-bottom: 2px solid var(--accent-light); padding-bottom: 5px; }
+        .card-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+        .card-icon { width: 18px; text-align: center; }
+
+        .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-container { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--shadow); height: 350px; position: relative; }
+        .full-width-chart { grid-column: span 2; }
+        
+        .chart-scroll-wrapper { width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden; }
+        .chart-scroll-content { min-width: 100%; height: 100%; }
+
+        .check-container { max-width: 650px; margin: auto; }
+        .check-item { display: flex; align-items: flex-start; gap: 15px; padding: 16px 20px; background: white; border-radius: 14px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.3s ease; border: 1px solid transparent; cursor: pointer;}
+        @media (hover: hover) { .check-item:hover { border-color: var(--accent-light); box-shadow: 0 4px 14px rgba(107,142,35,0.10); transform: translateX(3px); } }
+        .check-item.done { background: #fbfcfb; }
+        @media (hover: hover) { .check-item.done:hover { transform: none; border-color: var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); } }
+        .check-item span { flex-grow: 1; word-break: break-word; line-height: 1.4; padding-top: 2px; }
+        .check-item.done span { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
+        
+        .check-group-title { font-family: serif; font-size: 1.1rem; color: var(--text); margin: 35px 0 15px; display: flex; justify-content: space-between; align-items: center; }
+        .check-group-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); margin-left: 20px; }
+        
+        .custom-checkbox { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .check-item.done .custom-checkbox { background: var(--accent); border-color: var(--accent); }
+        .check-item.done .custom-checkbox::after { content: '✓'; color: white; font-size: 14px; }
+
+        .btn-del-check { background: none; border: none; color: #ffbcbc; cursor: pointer; font-size: 1rem; transition: color 0.2s; padding: 0 5px; }
+        .btn-del-check:hover { color: #ff4d4d; }
+
+        .total-highlight { background: var(--accent); color: white; padding: 20px; border-radius: var(--radius); text-align: center; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .total-highlight h2 { margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .total-highlight div { font-size: 2.2rem; font-weight: 800; margin-top: 5px; }
+
+        .btn-action { background: white; color: var(--accent); border: 1px solid var(--accent); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; margin-left: 5px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-action:hover { background: var(--accent-light); }
+        .btn-whatsapp { color: #25D366; border-color: #25D366; }
+        .btn-whatsapp:hover { background: #e9f9ef; }
+
+        /* Estilo do seletor visual de idiomas */
+        .lang-visual-selector { display: flex; gap: 8px; align-items: center; }
+        .lang-flag-btn { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-width: 38px; height: 32px; }
+        .lang-flag-btn img { width: 24px; height: auto; border-radius: 2px; }
+        .lang-flag-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+        .lang-flag-btn.active { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 1px var(--accent); }
+
+        @media (max-width: 768px) { .finance-grid { grid-template-columns: 1fr; } .full-width-chart { grid-column: span 1; } .form-grid { grid-template-columns: 1fr; } }
+
+        /* Indicador visual de que o menu de abas pode ser rolado horizontalmente */
+        .tabs-wrap { position: relative; }
+        .tabs-wrap::before, .tabs-wrap::after {
+            content: ''; position: absolute; top: 0; bottom: 1px; width: 28px; pointer-events: none; z-index: 2; transition: opacity 0.2s;
+        }
+        .tabs-wrap::before { left: 0; background: linear-gradient(to right, var(--card), transparent); opacity: 0; }
+        .tabs-wrap::after  { right: 0; background: linear-gradient(to left, var(--card), transparent); opacity: 0; }
+        .tabs-wrap.has-overflow.scrolled-left::before { opacity: 1; }
+        .tabs-wrap.has-overflow:not(.scrolled-end)::after { opacity: 1; }
+
+        /* Em telas menores, reduz respiro do header e empilha os botões de ação */
+        @media (max-width: 1100px) {
+            .sticky-top-inner { padding: 12px !important; }
+            header { margin-bottom: 10px !important; }
+        }
+        @media (max-width: 640px) {
+            .tab-btn { padding: 10px 8px; font-size: 0.85rem; }
+            .tab-btn i { margin-right: 4px !important; }
+        }
+
+        /* Carimbo de passaporte — Título da Viagem no cabeçalho */
+        .passport-stamp {
+            display: inline-block;
+            position: relative;
+            max-width: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 800;
+            font-size: clamp(0.72rem, 1.4vw, 0.95rem);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #a8432f;
+            padding: 6px 18px;
+            border: 2px solid currentColor;
+            border-radius: 8px;
+            transform: rotate(-4deg);
+            opacity: 0.86;
+            text-shadow: 0 0 1px rgba(168, 67, 47, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background:
+                repeating-linear-gradient(
+                    115deg,
+                    rgba(168,67,47,0.05) 0px,
+                    rgba(168,67,47,0.05) 2px,
+                    transparent 2px,
+                    transparent 5px
+                );
+        }
+        .passport-stamp::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid currentColor;
+            border-radius: 5px;
+            opacity: 0.75;
+            pointer-events: none;
+        }
+        .passport-stamp::after {
+            content: '\2708 VALISE \2708';
+            position: absolute;
+            left: 50%;
+            top: -8px;
+            transform: translateX(-50%);
+            background: var(--card, #fff);
+            padding: 0 6px;
+            font-size: 0.42rem;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            color: inherit;
+        }
+
+        /* Budget Tracker */
+        .budget-tracker-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 25px; overflow: hidden; }
+        .budget-tracker-header { padding: 20px 25px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .budget-tracker-header h3 { margin: 0; font-family: serif; font-size: 1.2rem; color: var(--text); font-weight: 600; }
+        .budget-summary-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+        .budget-pill { padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+        .budget-pill.total { background: var(--accent-light); color: var(--accent); }
+        .budget-pill.over { background: #fee2e2; color: #dc2626; }
+        .budget-pill.ok { background: #d1fae5; color: #059669; }
+
+        .budget-body { padding: 20px 25px; }
+        .budget-total-bar-wrap { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+        .budget-total-bar-wrap .budget-row-label { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .budget-row { margin-bottom: 16px; }
+        .budget-row-label { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .budget-row-label .cat-name { display: flex; align-items: center; gap: 7px; }
+        .budget-row-label .amounts { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+        .budget-row-label .amounts b { color: var(--text); font-weight: 700; }
+        .budget-row-label .status-badge { font-size: 0.72rem; font-weight: 700; padding: 2px 9px; border-radius: 10px; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+        .status-badge.ok { background: #d1fae5; color: #059669; }
+        .status-badge.warn { background: #fef3c7; color: #d97706; }
+        .status-badge.over { background: #fee2e2; color: #dc2626; }
+        .status-badge.nobudget { background: #f3f4f6; color: #9ca3af; }
+
+        .progress-track { height: 10px; background: #f3f4f6; border-radius: 10px; overflow: visible; position: relative; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); position: relative; }
+        .progress-fill.over-budget { background: linear-gradient(90deg, #fca5a5, #ef4444); }
+        .progress-marker { position: absolute; top: -4px; width: 3px; height: 18px; background: #374151; border-radius: 2px; transform: translateX(-50%); z-index: 3; }
+        .progress-marker::after { content: '100%'; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; color: #374151; font-weight: 700; white-space: nowrap; }
+        
+        .budget-inputs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+        .budget-input-item label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .budget-input-item input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fcfcfb; outline: none; box-sizing: border-box; font-size: 0.9rem; transition: border-color 0.2s; }
+        .budget-input-item input:focus { border-color: var(--accent); }
+        .budget-edit-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .budget-edit-toggle:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+        .budget-inputs-section { display: none; }
+        .budget-inputs-section.open { display: block; }
+
+        /* ===== DESTAQUE DO FILTRO DE VIAGEM ATIVO ===== */
+        .trip-filter-wrapper {
+            position: relative;
+        }
+        .trip-filter-wrapper .trip-filter-badge {
+            display: none;
+            position: absolute;
+            top: -8px;
+            right: -6px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 20px;
+            white-space: nowrap;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(107,142,35,0.35);
+            pointer-events: none;
+        }
+        select.trip-filter-active {
+            background: var(--accent-light) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 0 2px rgba(107,142,35,0.18) !important;
+        }
+        select.trip-filter-active + .trip-filter-badge {
+            display: inline-block;
+        }
+
+        /* ===== IMPRESSÃO ===== */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-shadow: none !important; transition: none !important; animation: none !important; }
+
+            html, body { margin: 0 !important; padding: 0 !important; background: white !important; font-size: 11pt; }
+
+            /* Remove cabeçalho fixo e mostra conteúdo sem recuo */
+            .sticky-top { display: none !important; }
+
+            /* Cabeçalho de impressão com logo e slogan */
+            .print-header { display: flex !important; align-items: center; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #c9973a; }
+            .print-header img { height: 60px; width: auto; }
+            .print-header-text { display: flex; flex-direction: column; line-height: 1.3; }
+            .print-header-text span:first-child { font-family: serif; font-size: 9pt; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #3a3d40; }
+            .print-header-text span:last-child  { font-family: serif; font-size: 9pt; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #c9973a; }
+            .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            body { padding: 0 !important; }
+
+       /* ==========================================================================
+   CORREÇÃO DE ESPECIFICIDADE: MOSTRA APENAS A ABA ATIVA NO DESKTOP
+   ========================================================================== */
+
+/* 1. Esconde todas as abas usando os IDs para garantir o peso do seletor */
+#tab-timeline, 
+#tab-checklist, 
+#tab-finance, 
+#tab-cronograma, 
+#tab-links { 
+    display: none !important; 
+}
+
+/* 2. Força a abertura APENAS da aba ativa combinando o ID com a classe active */
+#tab-timeline.active, 
+#tab-checklist.active, 
+#tab-finance.active, 
+#tab-cronograma.active, 
+#tab-links.active { 
+    display: block !important; 
+    opacity: 1 !important;
+}
+
+/* ==========================================================================
+   OCULTAÇÃO DEFINITIVA DE FILTROS, FORMULÁRIOS E SEUS CONTÊINERES (MÃE)
+   ========================================================================== */
+
+/* 1. Esconde os elementos internos interativos */
+.btn-confirm, .btn-action, .btn-add-trip,
+.btn-edit-item, .btn-delete-item, .btn-del-check,
+.btn-reset, .timeline-actions, .budget-edit-toggle,
+.budget-inputs-section, .links-filter-bar,
+.form-grid, .trip-filter-wrapper { 
+    display: none !important; 
+}
+
+/* 2. Remove o cartão inteiro se ele contiver filtros ou formulários dentro dele */
+.glass-card:has(.form-grid),
+.glass-card:has(.trip-filter-wrapper),
+.glass-card:has(select),
+.glass-card:has(input[type="text"]) {
+    display: none !important;
+}
+/* Fallback para Safari < 16.4 que não suporta :has() */
+.glass-card.hide-on-print {
+    display: none !important;
+}
+
+            /* Cards e itens: sem hover, sem transform */
+            .item-card, .daily-card, .check-item, .glass-card {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                transform: none !important;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+
+            /* Timeline */
+            .timeline-wrapper { padding-left: 30px !important; margin: 10px 0 !important; }
+            .timeline-wrapper::before { left: 10px !important; }
+            .item-card::before { left: -22px !important; }
+            .day-header { margin-left: -30px !important; font-size: 1rem !important; padding: 5px 12px !important; }
+
+            /* Cards diários: 2 colunas na impressão */
+            .cards-container { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+
+            /* Financeiro: gráficos em coluna única */
+            .finance-grid { grid-template-columns: 1fr !important; }
+            .full-width-chart { grid-column: span 1 !important; }
+            .chart-container { height: 260px !important; break-inside: avoid !important; page-break-inside: avoid !important; border: 1px solid #ddd !important; border-radius: 10px !important; padding: 15px !important; }
+            .chart-scroll-wrapper { overflow: visible !important; width: 100% !important; height: 100% !important; }
+            .chart-scroll-content { min-width: unset !important; width: 100% !important; height: 100% !important; }
+            .chart-container canvas { max-width: 100% !important; }
+
+            /* Checklist */
+            .check-container { max-width: 100% !important; }
+            .check-item { padding: 8px 14px !important; margin-bottom: 4px !important; }
+
+            /* Budget tracker */
+            .budget-tracker-card { break-inside: avoid !important; page-break-inside: avoid !important; }
+            .progress-marker::after { display: none !important; }
+
+            /* Tabela do cronograma */
+            table { width: 100% !important; font-size: 9pt !important; }
+            th, td { padding: 6px 8px !important; }
+
+            /* Não quebrar cabeçalhos de dia no meio da página */
+            .day-header { break-before: auto !important; break-after: avoid !important; page-break-after: avoid !important; }
+
+            /* Quebra de página entre dias longos se necessário */
+            .timeline-wrapper > div { break-inside: avoid !important; page-break-inside: avoid !important; }
+
+            /* Margens da página */
+            @page { margin: 15mm 12mm; size: A4 portrait; }
+
+            /* Oculta itens marcados como "oculto do cliente" na impressão */
+            .hidden-from-client { display: none !important; }
+       .links-filter-bar { 
+    display: none !important; }
+        #modal-privacidade {
+    display: none !important;
+}
+}

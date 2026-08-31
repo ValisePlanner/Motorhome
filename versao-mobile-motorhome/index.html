@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Valise | Mobile Concierge</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="Logo_F.ico">
+    <link rel="shortcut icon" href="Logo_F.ico">
+
+    <!-- PWA: Manifest e theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a3a28">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- PWA: iOS / Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Valise">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- PWA: Windows / Edge -->
+    <meta name="msapplication-TileColor" content="#1a3a28">
+    <meta name="msapplication-TileImage" content="icons/icon-192.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="brand">
+                <img src="Logo_F.ico" alt="Valise" class="brand-logo" onerror="this.style.display='none'; document.querySelector('.brand-text').style.display='inline';">
+                <span class="brand-text" style="display:none;">Valise<span class="brand-dot">.</span></span>
+            </div>
+            <div class="header-actions">
+                <label class="btn-load" style="cursor: pointer;">
+                    <i class="fas fa-file-import"></i> Abrir
+                    <input type="file" id="file-import" accept=".valise,.json,application/json,text/plain" style="display: none;">
+                </label>
+                <button class="btn-load" id="btn-export" style="cursor: pointer; border: none; font-family: inherit;">
+                    <i class="fas fa-file-export"></i> Salvar
+                </button>
+                <button class="btn-load btn-clear" id="btn-clear-all" style="cursor: pointer; border: none; font-family: inherit;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div id="lbl-cidade" class="current-city"><i class="fas fa-map-marker-alt"></i> Aguardando ficheiro de viagem...</div>
+    </header>
+
+    <main>
+        <div id="tab-roteiro" class="tab-content active">
+            <div id="mobile-cards-container">
+                <div class="finance-empty"><i class="fas fa-route"></i>Por favor, abra um roteiro de viagem.</div>
+            </div>
+        </div>
+
+        <div id="tab-checklist" class="tab-content">
+            <div class="checklist-card" style="background: var(--white); padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); margin-bottom: 20px; border: 1px solid var(--card-border);">
+                <div class="checklist-progress-container">
+                    <div class="checklist-progress-info" style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; color: var(--green-deep); margin-bottom: 8px;">
+                        <span id="checklist-progress-label">0 de 0 itens concluídos (0%)</span>
+                    </div>
+                    <div class="checklist-progress-bg" style="width: 100%; height: 8px; background: rgba(45,90,61,0.08); border-radius: 4px; overflow: hidden;">
+                        <div id="checklist-bar" class="checklist-progress-fill" style="width: 0%; height: 100%; background: var(--gold); border-radius: 4px; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                    <input type="text" id="checklist-novo-item" placeholder="Adicionar nova tarefa..." style="width: 100%; padding: 12px 16px; border: 1px solid rgba(45,90,61,0.12); border-radius: 12px; font-family: inherit; font-size: 14px; background: var(--cream); outline: none; color: var(--green-deep);">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <select id="checklist-grupo-select" style="flex: 1; padding: 10px 12px; border: 1px solid rgba(45,90,61,0.12); border-radius: 12px; font-family: inherit; font-size: 13px; background: var(--cream); color: var(--green-deep); outline: none; appearance: none; -webkit-appearance: none; padding-right: 32px;">
+                            <option value="Geral">Geral</option>
+                        </select>
+                        <input type="text" id="checklist-grupo-novo" placeholder="Novo grupo..." style="flex: 1; padding: 10px 12px; border: 1px solid rgba(45,90,61,0.12); border-radius: 12px; font-family: inherit; font-size: 13px; background: var(--cream); outline: none; color: var(--green-deep); display: none;">
+                        <button id="btn-toggle-novo-grupo" title="Criar novo grupo" style="background: rgba(201,151,58,0.12); color: var(--gold); border: 1px solid rgba(201,151,58,0.25); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;"><i class="fas fa-tag"></i></button>
+                        <button id="btn-add-todo" style="background: var(--green-deep); color: var(--white); border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="checklist-filter-bar" class="links-filter-bar" style="display:none;">
+                <button class="filter-chip active" data-grupo="">Todos</button>
+            </div>
+
+            <div id="checklist-list"></div>
+        </div>
+
+        <div id="tab-links" class="tab-content">
+            <div class="links-filter-bar">
+                <button class="filter-chip active" data-cat="">Todos</button>
+                <button class="filter-chip" data-cat="Consulado">🏛️ Consulado</button>
+                <button class="filter-chip" data-cat="Museu">🖼️ Museu</button>
+                <button class="filter-chip" data-cat="Transporte">🚌 Transporte</button>
+                <button class="filter-chip" data-cat="Saúde">🏥 Saúde</button>
+                <button class="filter-chip" data-cat="Hotel">🏨 Hotel</button>
+                <button class="filter-chip" data-cat="Restaurante">🍽️ Restaurante</button>
+                <button class="filter-chip" data-cat="Compras">🛍️ Compras</button>
+                <button class="filter-chip" data-cat="Emergência">🚨 Emergência</button>
+                <button class="filter-chip" data-cat="Outro">📌 Outro</button>
+            </div>
+
+            <div id="links-list">
+                </div>
+        </div>
+
+        <div id="tab-manutencao" class="tab-content">
+            <div class="maint-summary-card">
+                <div class="maint-summary-header"><i class="fas fa-bell"></i> Alertas de Manutenção</div>
+                <div id="maint-summary-sub" class="maint-summary-sub">Nenhum item cadastrado</div>
+                <div class="maint-odometer-row">
+                    <label for="maint-hodometro-atual"><i class="fas fa-gauge-high"></i> Hodômetro atual (km)</label>
+                    <input type="number" inputmode="numeric" id="maint-hodometro-atual" placeholder="Ex: 84500">
+                </div>
+            </div>
+
+            <div id="maint-list"></div>
+
+            <div id="maint-historico-toggle" class="maint-historico-toggle" style="display:none;">
+                <i class="fas fa-chevron-down"></i> <span id="maint-historico-label">Ver histórico completo</span>
+            </div>
+            <div id="maint-historico-list" style="display:none;"></div>
+        </div>
+    </main>
+
+    <button id="btn-add-fab" class="fab-btn" style="display: none; position: fixed; bottom: 90px; right: 20px; background: var(--gold); color: var(--green-deep); border: none; width: 56px; height: 56px; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 20px; justify-content: center; align-items: center; cursor: pointer; z-index: 999;">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="modal-link" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <h3 id="modal-link-titulo" style="margin-bottom:20px; color:var(--green-deep); font-family:'Cormorant Garamond', serif; font-size:22px;">Adicionar Novo Link</h3>
+            <input type="hidden" id="link-edit-id">
+
+            <div class="form-group">
+                <label>Nome / Local</label>
+                <input type="text" class="form-control" id="link-nome" placeholder="Ex: Consulado Geral">
+            </div>
+
+            <div class="form-group">
+                <label>Categoria</label>
+                <div id="link-cat-grid" class="link-cat-grid">
+                    <button class="link-cat-btn selected" data-val="Consulado">🏛️ Consulado</button>
+                    <button class="link-cat-btn" data-val="Museu">🖼️ Museu</button>
+                    <button class="link-cat-btn" data-val="Transporte">🚌 Transporte</button>
+                    <button class="link-cat-btn" data-val="Saúde">🏥 Saúde</button>
+                    <button class="link-cat-btn" data-val="Hotel">🏨 Hotel</button>
+                    <button class="link-cat-btn" data-val="Restaurante">🍽️ Restaurante</button>
+                    <button class="link-cat-btn" data-val="Compras">🛍️ Compras</button>
+                    <button class="link-cat-btn" data-val="Emergência">🚨 Emergência</button>
+                    <button class="link-cat-btn" data-val="Outro">📌 Outro</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Endereço / Direções</label>
+                <input type="text" class="form-control" id="link-endereco" placeholder="Ex: Av. da Liberdade, 22">
+            </div>
+
+            <div class="form-group">
+                <label>Telefone / Contacto</label>
+                <input type="tel" class="form-control" id="link-telefone" placeholder="+351 912 ...">
+            </div>
+
+            <div class="form-group">
+                <label>Website / URL</label>
+                <input type="url" class="form-control" id="link-url" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Observações</label>
+                <input type="text" class="form-control" id="link-obs" placeholder="Ex: Seg a Sex.">
+            </div>
+
+            <button class="btn-submit" id="btn-save-link" style="margin-top: 8px;">
+                <i class="fas fa-save"></i> Salvar Registro
+            </button>
+            <button id="btn-cancel-link" style="width:100%; margin-top:10px; background:none; border:1px solid rgba(45,90,61,0.15); border-radius:10px; padding:12px; color:var(--text-muted); font-weight:600; cursor:pointer; font-size:14px;">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <div id="modal-manutencao" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <h3 id="modal-maint-titulo" style="margin-bottom:20px; color:var(--green-deep); font-family:'Cormorant Garamond', serif; font-size:22px;">Novo Registro de Manutenção</h3>
+            <input type="hidden" id="maint-edit-id">
+
+            <div class="form-group">
+                <label>Item / Serviço</label>
+                <input type="text" class="form-control" id="maint-nome" placeholder="Ex: Filtro de ar">
+            </div>
+
+            <div class="form-group">
+                <label>Situação</label>
+                <div id="maint-status-grid" class="link-cat-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <button class="link-cat-btn selected" data-val="Realizado"><i class="fas fa-circle-check"></i> Realizado</button>
+                    <button class="link-cat-btn" data-val="Agendado"><i class="far fa-calendar"></i> Agendado</button>
+                    <button class="link-cat-btn" data-val="Pendente"><i class="fas fa-circle-exclamation"></i> Pendente</button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Data do registro</label>
+                    <input type="date" class="form-control" id="maint-data">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Km na ocasião</label>
+                    <input type="number" inputmode="numeric" class="form-control" id="maint-km" placeholder="Ex: 82350">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Local / Oficina</label>
+                <input type="text" class="form-control" id="maint-local" placeholder="Ex: Concessionária - Ribeirão Preto">
+            </div>
+
+            <div class="form-group">
+                <label>Custo (R$)</label>
+                <input type="number" inputmode="decimal" class="form-control" id="maint-custo" placeholder="Ex: 180">
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Próx. km previsto</label>
+                    <input type="number" inputmode="numeric" class="form-control" id="maint-prox-km" placeholder="Ex: 84000">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Próx. data prevista</label>
+                    <input type="date" class="form-control" id="maint-prox-data">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Observações</label>
+                <input type="text" class="form-control" id="maint-obs" placeholder="Ex: Trocar na próxima revisão">
+            </div>
+
+            <button class="btn-submit" id="btn-save-maint" style="margin-top: 8px;">
+                <i class="fas fa-save"></i> Salvar Registro
+            </button>
+            <button id="btn-cancel-maint" style="width:100%; margin-top:10px; background:none; border:1px solid rgba(45,90,61,0.15); border-radius:10px; padding:12px; color:var(--text-muted); font-weight:600; cursor:pointer; font-size:14px;">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="roteiro"><i class="fas fa-route"></i> Roteiro</button>
+        <button class="nav-item" data-tab="checklist"><i class="fas fa-list-check"></i> Checklist</button>
+        <button class="nav-item" data-tab="links"><i class="fas fa-map-pin"></i> Links</button>
+        <button class="nav-item" data-tab="manutencao"><i class="fas fa-wrench"></i> Manutenção</button>
+    </nav>
+
+    <script src="app.js"></script>
+
+    <!-- Registro do Service Worker (PWA) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('[Valise PWA] Service Worker registado:', reg.scope);
+
+                        // Notifica o utilizador quando uma nova versão está disponível
+                        reg.addEventListener('updatefound', () => {
+                            const novo = reg.installing;
+                            novo.addEventListener('statechange', () => {
+                                if (novo.state === 'installed' && navigator.serviceWorker.controller) {
+                                    if (confirm('Uma nova versão do Valise está disponível. Atualizar agora?')) {
+                                        novo.postMessage({ type: 'SKIP_WAITING' });
+                                        location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.warn('[Valise PWA] Falha ao registar SW:', err));
+            });
+        }
+    </script>
+</body>
+</html>
